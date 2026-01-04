@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Eleven Squad Builder</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,123 +11,143 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    padding: 20px;
+    padding: 15px;
 }
 
 .container { max-width: 1200px; margin: 0 auto; }
 
-header { text-align: center; color: white; margin-bottom: 30px; }
-h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 10px; }
+header { text-align: center; color: white; margin-bottom: 20px; }
+h1 { font-size: 2.3em; text-shadow: 2px 2px 6px rgba(0,0,0,0.4); }
 
-.tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tabs {
+    display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+}
 .tab {
-    background: rgba(255,255,255,0.2); color: white; border: none; padding: 12px 24px;
-    border-radius: 25px; cursor: pointer; font-size: 16px; transition: all 0.3s;
+    background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 18px;
+    border-radius: 25px; cursor: pointer; font-size: 15px; transition: all 0.3s;
 }
 .tab.active { background: white; color: #667eea; font-weight: bold; }
 .tab:hover { transform: translateY(-2px); }
-.tab-link { text-decoration: none; }
-
-.content { display: none; }
-.content.active { display: block; }
 
 .controls {
-    background: rgba(255,255,255,0.95); padding: 20px; border-radius: 15px;
-    margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.95); padding: 18px; border-radius: 18px;
+    margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 .control-group {
-    display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;
 }
-.control-group label { font-weight: bold; color: #333; }
-.control-group select, .control-group input {
-    padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none;
+.control-group label { font-weight: bold; color: #333; font-size: 15px; }
+.control-group input, .control-group select {
+    padding: 12px 14px; border: 2px solid #ddd; border-radius: 12px; font-size: 15px; flex: 1; min-width: 180px;
 }
+
 .btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
-    border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer;
-    font-size: 16px; font-weight: bold; transition: all 0.3s;
+    border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer;
+    font-size: 15px; font-weight: bold; transition: all 0.3s; min-width: 120px;
 }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+.btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
 .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
 .btn-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.btn-goat { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; }
+.btn-goat { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; font-weight: bold; }
 
 .team-name-display {
-    position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-    font-size: 22px; font-weight: bold; color: #fff; padding: 6px 12px;
-    background: rgba(0,0,0,0.45); border-radius: 12px; backdrop-filter: blur(4px); z-index: 10;
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    font-size: 20px; font-weight: bold; color: #fff; padding: 6px 16px;
+    background: rgba(0,0,0,0.5); border-radius: 14px; backdrop-filter: blur(8px); z-index: 10;
 }
 
 #field {
     position: relative; background: linear-gradient(180deg, #2d5016 0%, #1a3a0f 100%);
-    border-radius: 20px; padding: 40px 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); min-height: 650px;
+    border-radius: 20px; padding: 35px 15px 60px; box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+    transition: transform 0.5s ease;
 }
 #field::before { content: ''; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: rgba(255,255,255,0.3); }
 #field::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; }
+    width: 100px; height: 100px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; }
 
-.row { display: flex; justify-content: space-around; margin: 20px 0; z-index: 1; position: relative; }
+.row { display: flex; justify-content: space-around; margin: 18px 0; gap: 10px; }
 
-/* Cartes joueurs normales */
+/* Cartes joueurs */
 .player-card {
-    width: 90px; height: 120px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    border-radius: 10px; padding: 8px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 85px; height: 115px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-radius: 12px; padding: 8px; cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,0.4);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: all 0.3s; flex-shrink: 0;
+    transition: all 0.3s;
 }
-.player-card:hover { transform: translateY(-10px) scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.player-card.filled { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%); }
-.player-card.empty { border: 2px dashed rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); }
+.player-card:hover { transform: translateY(-10px) scale(1.08); }
+.player-card.filled { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%); color: #000; }
+.player-card.empty { border: 2px dashed rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); }
 
-.player-position { font-size: 12px; font-weight: bold; color: #000; margin-bottom: 5px; }
-.player-flag { font-size: 24px; margin: 5px 0; }
-.player-name { font-size: 13px; font-weight: bold; text-align: center; line-height: 1.2; color: #000; word-wrap: break-word; }
-.player-club { font-size: 9px; color: #333; margin-top: 2px; }
-.empty-text { color: rgba(255,255,255,0.6); font-size: 11px; font-weight: bold; text-align: center; }
+.player-position { font-size: 12px; font-weight: bold; color: #000; }
+.player-flag { font-size: 26px; margin: 6px 0; }
+.player-name { font-size: 12px; font-weight: bold; text-align: center; line-height: 1.2; word-wrap: break-word; max-width: 75px; }
+.player-club { font-size: 9px; color: #333; margin-top: 3px; }
+.empty-text { color: rgba(255,255,255,0.7); font-size: 11px; font-weight: bold; text-align: center; }
 
-/* Cartes Coach & GOAT - carrées et intégrées dans la row GK */
+/* Coach & GOAT carrés intégrés dans la row GK */
 .coach-card, .goat-card {
-    width: 80px; height: 100px; border-radius: 12px; padding: 6px;
+    width: 75px; height: 100px; border-radius: 14px; padding: 8px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4); cursor: pointer; transition: all 0.3s;
-    flex-shrink: 0;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5); cursor: pointer; transition: all 0.3s;
 }
-.coach-card { background: rgba(0,0,0,0.5); color: white; }
-.goat-card { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; border: 2px solid #fff; }
-.coach-card:hover, .goat-card:hover { transform: translateY(-8px) scale(1.05); }
+.coach-card { background: rgba(0,0,0,0.6); color: white; }
+.goat-card { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; border: 3px solid #fff; }
+.coach-card:hover, .goat-card:hover { transform: translateY(-8px) scale(1.08); }
 
-.coach-card .flag, .goat-card .flag { font-size: 28px; margin-bottom: 4px; }
-.coach-card .name, .goat-card .name {
-    font-size: 11px; font-weight: bold; text-align: center; word-wrap: break-word; max-width: 70px;
+.coach-card .flag, .goat-card .flag { font-size: 28px; margin-bottom: 6px; }
+.coach-card .name, .goat-card .name { font-size: 10px; font-weight: bold; text-align: center; word-wrap: break-word; max-width: 65px; }
+
+.coach-card.empty, .goat-card.empty {
+    border: 2px dashed rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8);
 }
-.coach-card.empty-card, .goat-card.empty-card {
-    border: 2px dashed rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+
+/* Modal moderne & fluide */
+#modal, #coachModal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center;
+    padding: 20px; opacity: 0; transition: opacity 0.4s ease;
 }
+#modal.active, #coachModal.active { opacity: 1; display: flex; }
+
+.modal-content {
+    background: white; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+    padding: 30px; border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    animation: popIn 0.4s ease;
+}
+@keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close {
+    position: absolute; top: 18px; right: 22px; font-size: 34px; color: #aaa;
+    cursor: pointer; transition: color 0.3s;
+}
+.close:hover { color: #000; }
+
+.form-group { margin-bottom: 22px; }
+.form-group label { display: block; margin-bottom: 10px; font-weight: bold; color: #333; font-size: 16px; }
+.form-group input, .form-group select {
+    width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 16px; font-size: 16px;
+    transition: border 0.3s;
+}
+.form-group input:focus, .form-group select:focus { border-color: #667eea; outline: none; }
+
+.btn { width: 100%; padding: 16px; font-size: 17px; margin-top: 10px; border-radius: 30px; }
 
 /* Responsive mobile */
 @media (max-width: 768px) {
-    .player-card { width: 70px; min-height: 105px; }
+    .player-card { width: 68px; height: 100px; }
+    .player-flag { font-size: 22px; }
     .player-name { font-size: 10px; }
 
-    .coach-card, .goat-card {
-        width: 60px; height: 80px;
-    }
+    .coach-card, .goat-card { width: 58px; height: 82px; }
     .coach-card .flag, .goat-card .flag { font-size: 24px; }
-    .coach-card .name, .goat-card .name { font-size: 9px; max-width: 55px; }
-}
+    .coach-card .name, .goat-card .name { font-size: 8.5px; max-width: 50px; }
 
-@media (max-width: 480px) {
-    .coach-card, .goat-card {
-        width: 55px; height: 75px;
-    }
-    .coach-card .flag, .goat-card .flag { font-size: 22px; }
-    .coach-card .name, .goat-card .name { font-size: 8px; }
-}
-
-@media (max-width: 600px) {
-    .control-group { flex-direction: column; }
-    .control-group > * { width: 100%; }
-    .team-name-display { font-size: 18px; }
+    .control-group { flex-direction: column; align-items: stretch; }
+    .control-group > * { width: 100%; margin-bottom: 10px; }
 }
 </style>
 </head>
@@ -188,12 +208,6 @@ Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contac
             <div id="team-name-display" class="team-name-display hidden">Mon équipe</div>
             <div id="field"></div>
         </div>
-    </div>
-
-    <!-- Autres onglets (Mes équipes, Communauté) - tu peux les garder tels quels -->
-    <div id="mySquads" class="content">
-        <div class="controls"><h2 style="text-align:center;">Mes Équipes Sauvegardées</h2></div>
-        <div id="squadsList" class="squad-list"></div>
     </div>
 </div>
 
@@ -861,9 +875,104 @@ function closeModal() {
     document.getElementById('modal').classList.remove('active');
     setTimeout(() => document.getElementById('modal').style.display = 'none', 400);
 }
+function drawField() {
+    const field = document.getElementById('field');
+    field.innerHTML = '';
 
+    const formation = document.getElementById('formation').value;
+    const rows = formations[formation];
 
+    for (let i = rows.length - 1; i >= 0; i--) {
+        const row = document.createElement('div');
+        row.className = 'row';
 
+        if (rows[i][0] === 'GK') {
+            // Coach
+            const coachCard = document.createElement('div');
+            coachCard.className = coach ? 'coach-card' : 'coach-card empty';
+            coachCard.innerHTML = coach ?
+                `<div class="flag">${coach.flag}</div><div class="name">${coach.name}</div>` :
+                `<div class="empty-text">Coach<br>+</div>`;
+            coachCard.onclick = openCoachModal;
+            row.appendChild(coachCard);
+
+            // GK
+            const gkKey = `${i}-0`;
+            const gk = currentSquad.find(p => p.posKey === gkKey);
+            const gkCard = document.createElement('div');
+            gkCard.className = gk ? 'player-card filled' : 'player-card empty';
+            gkCard.innerHTML = gk ?
+                `<div class="player-position">GK</div><div class="player-flag">${gk.flag}</div><div class="player-name">${gk.name}</div>` :
+                `<div class="empty-text">GK<br>+</div>`;
+            gkCard.onclick = () => openModal('GK', i, 0);
+            row.appendChild(gkCard);
+
+            // GOAT
+            const goatCard = document.createElement('div');
+            goatCard.className = goat ? 'goat-card' : 'goat-card empty';
+            goatCard.innerHTML = goat ?
+                `<div class="flag">${goat.flag}</div><div class="name">${goat.name}</div>` :
+                `<div class="empty-text">GOAT<br>+</div>`;
+            goatCard.onclick = openGoatModal;
+            row.appendChild(goatCard);
+        } else {
+            rows[i].forEach((pos, j) => {
+                const key = `${i}-${j}`;
+                const player = currentSquad.find(p => p.posKey === key);
+                const card = document.createElement('div');
+                card.className = player ? 'player-card filled' : 'player-card empty';
+                card.innerHTML = player ?
+                    `<div class="player-position">${pos}</div><div class="player-flag">${player.flag}</div><div class="player-name">${player.name}</div>` :
+                    `<div class="empty-text">${pos}<br>+</div>`;
+                card.onclick = () => openModal(pos, i, j);
+                row.appendChild(card);
+            });
+        }
+        field.appendChild(row);
+    }
+    updateTeamNameDisplay();
+}
+
+// Export optimisé pour capture mobile
+function exportAsImage() {
+    const field = document.getElementById('field');
+    field.style.transform = 'scale(0.85)';
+    field.style.transformOrigin = 'top center';
+
+    setTimeout(() => {
+        html2canvas(document.getElementById('export-area'), {
+            scale: 3,
+            backgroundColor: null,
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            field.style.transform = 'scale(1)';
+            const data = canvas.toDataURL('image/png');
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html><body style="margin:0;background:#000;display:flex;justify-content:center;align-items:center;height:100vh;">
+                    <img src="${data}" style="max-width:100%;max-height:100vh;object-fit:contain;border-radius:20px;">
+                </body></html>
+            `);
+            win.document.close();
+        });
+    }, 400);
+}
+
+// Ouverture modals avec animation
+function openModal(pos, row, idx) {
+    // ... ton code ...
+    document.getElementById('modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('modal').classList.add('active'), 10);
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+    setTimeout(() => document.getElementById('modal').style.display = 'none', 400);
+}
+
+// Même pour coachModal
 
 drawField();
 </script>
