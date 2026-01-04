@@ -172,12 +172,12 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 /* Responsive */
 
 @media (max-width: 768px) {
-    .player-card { width: 70px; min-height: 105px; }
-
-    @media (max-width: 768px) {  ❌ NESTING INTERDIT
-
-   
+    .player-card {
+        width: 70px;
+        min-height: 105px;
+    }
 }
+
 
 @media (max-width: 600px) {
     .control-group { flex-direction: column; }
@@ -645,8 +645,11 @@ let savedSquads = JSON.parse(localStorage.getItem('elevenSquads') || '[]');
 function switchTab(tabName) {
     document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
     document.getElementById(tabName)?.classList.add('active');
+    event?.target?.classList.add('active');
 }
+
 
 
 
@@ -825,32 +828,29 @@ function clearSquad() {
 function showSuggestions() {
     const input = document.getElementById('playerName').value.trim().toLowerCase();
     const suggestionsDiv = document.getElementById('suggestions');
+    suggestionsDiv.innerHTML = '';
 
-    if (input.length < 2) {
-        suggestionsDiv.innerHTML = '';
-        return;
-    }
+    if (input.length < 2) return;
 
-    const results = playersDatabase
+    const matches = playersDatabase
         .filter(p => p.name.toLowerCase().includes(input))
         .slice(0, 8);
 
-    suggestionsDiv.innerHTML = '';
-
-    results.forEach(player => {
-        const item = document.createElement('div');
-        item.className = 'suggestion-item';
-
-        item.innerHTML = `
-            <span>${player.name}</span>
-            <span class="suggestion-flag">${player.flag}</span>
-        `;
-
-        item.onclick = () => selectSuggestion(player);
-
-        suggestionsDiv.appendChild(item);
+    matches.forEach(player => {
+        const div = document.createElement('div');
+        div.textContent = `${player.name} ${player.flag}`;
+        div.style.padding = '6px';
+        div.style.cursor = 'pointer';
+        div.onclick = () => {
+            document.getElementById('playerName').value = player.name;
+            document.getElementById('playerFlag').value = player.flag;
+            document.getElementById('playerClub').value = player.club || '';
+            suggestionsDiv.innerHTML = '';
+        };
+        suggestionsDiv.appendChild(div);
     });
 }
+
 function selectSuggestion(player) {
     document.getElementById('playerName').value = player.name;
     document.getElementById('playerFlag').value = player.flag;
@@ -863,6 +863,22 @@ document.addEventListener('click', (e) => {
     }
 });
 
+function exportAsImage() {
+    const exportArea = document.getElementById('export-area');
+    exportArea.classList.add('export-mode');
+
+    html2canvas(exportArea, {
+        scale: 3,
+        backgroundColor: null
+    }).then(canvas => {
+        exportArea.classList.remove('export-mode');
+
+        const imgData = canvas.toDataURL('image/png');
+        const win = window.open('', '_blank');
+        win.document.write(`<img src="${imgData}" style="width:100%">`);
+        win.document.close();
+    });
+}
 
 
 
