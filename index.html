@@ -11,123 +11,125 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    padding: 20px;
+    padding: 15px;
 }
 
 .container { max-width: 1200px; margin: 0 auto; }
 
-header { text-align: center; color: white; margin-bottom: 30px; }
-h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 10px; }
+header { text-align: center; color: white; margin-bottom: 25px; }
+h1 { font-size: 2.2em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 8px; }
 
-.tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
 .tab {
-    background: rgba(255,255,255,0.2); color: white; border: none; padding: 12px 24px;
-    border-radius: 25px; cursor: pointer; font-size: 16px; transition: all 0.3s;
+    background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px;
+    border-radius: 25px; cursor: pointer; font-size: 15px; transition: all 0.3s;
 }
 .tab.active { background: white; color: #667eea; font-weight: bold; }
 .tab:hover { transform: translateY(-2px); }
-.tab-link { text-decoration: none; }
-
-.content { display: none; }
-.content.active { display: block; }
 
 .controls {
-    background: rgba(255,255,255,0.95); padding: 20px; border-radius: 15px;
-    margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.95); padding: 15px; border-radius: 15px;
+    margin-bottom: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 .control-group {
-    display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;
 }
-.control-group label { font-weight: bold; color: #333; }
+.control-group label { font-weight: bold; color: #333; font-size: 14px; }
 .control-group select, .control-group input {
-    padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none;
+    padding: 10px 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px;
 }
 .btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
-    border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer;
-    font-size: 16px; font-weight: bold; transition: all 0.3s;
+    border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer;
+    font-size: 14px; font-weight: bold; transition: all 0.3s;
 }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
-.btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-.btn-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.btn-goat { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
 
 .team-name-display {
-    position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-    font-size: 22px; font-weight: bold; color: #fff; padding: 6px 12px;
-    background: rgba(0,0,0,0.45); border-radius: 12px; backdrop-filter: blur(4px); z-index: 10;
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    font-size: 20px; font-weight: bold; color: #fff; padding: 5px 12px;
+    background: rgba(0,0,0,0.5); border-radius: 12px; backdrop-filter: blur(6px); z-index: 10;
 }
 
 #field {
     position: relative; background: linear-gradient(180deg, #2d5016 0%, #1a3a0f 100%);
-    border-radius: 20px; padding: 40px 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); min-height: 650px;
+    border-radius: 20px; padding: 30px 15px 80px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    min-height: 600px; transition: transform 0.4s ease;
 }
-#field::before { content: ''; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: rgba(255,255,255,0.3); }
-#field::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; }
 
-.row { display: flex; justify-content: space-around; margin: 20px 0; z-index: 1; position: relative; }
+.row { display: flex; justify-content: space-around; margin: 15px 0; z-index: 1; }
 
-/* Cartes joueurs normales */
 .player-card {
-    width: 90px; height: 120px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    border-radius: 10px; padding: 8px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 80px; height: 110px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-radius: 10px; padding: 6px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     transition: all 0.3s; flex-shrink: 0;
 }
-.player-card:hover { transform: translateY(-10px) scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.player-card:hover { transform: translateY(-8px) scale(1.05); }
+
 .player-card.filled { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%); }
 .player-card.empty { border: 2px dashed rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); }
 
-.player-position { font-size: 12px; font-weight: bold; color: #000; margin-bottom: 5px; }
-.player-flag { font-size: 24px; margin: 5px 0; }
-.player-name { font-size: 13px; font-weight: bold; text-align: center; line-height: 1.2; color: #000; word-wrap: break-word; }
-.player-club { font-size: 9px; color: #333; margin-top: 2px; }
-.empty-text { color: rgba(255,255,255,0.6); font-size: 11px; font-weight: bold; text-align: center; }
+.player-position { font-size: 11px; font-weight: bold; color: #000; margin-bottom: 4px; }
+.player-flag { font-size: 22px; margin: 4px 0; }
+.player-name { font-size: 12px; font-weight: bold; text-align: center; line-height: 1.2; color: #000; word-wrap: break-word; }
 
-/* Cartes Coach & GOAT - carrées et intégrées dans la row GK */
+/* Coach & GOAT intégrés dans la row GK */
 .coach-card, .goat-card {
-    width: 80px; height: 100px; border-radius: 12px; padding: 6px;
+    width: 70px; height: 95px; border-radius: 12px; padding: 6px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4); cursor: pointer; transition: all 0.3s;
-    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; transition: all 0.3s;
 }
-.coach-card { background: rgba(0,0,0,0.5); color: white; }
+.coach-card { background: rgba(0,0,0,0.6); color: white; }
 .goat-card { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; border: 2px solid #fff; }
 .coach-card:hover, .goat-card:hover { transform: translateY(-8px) scale(1.05); }
 
-.coach-card .flag, .goat-card .flag { font-size: 28px; margin-bottom: 4px; }
-.coach-card .name, .goat-card .name {
-    font-size: 11px; font-weight: bold; text-align: center; word-wrap: break-word; max-width: 70px;
-}
-.coach-card.empty-card, .goat-card.empty-card {
-    border: 2px dashed rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
-}
+.coach-card .flag, .goat-card .flag { font-size: 26px; margin-bottom: 4px; }
+.coach-card .name, .goat-card .name { font-size: 10px; font-weight: bold; text-align: center; word-wrap: break-word; max-width: 60px; }
 
-/* Responsive mobile */
+/* Modal fluide & beau sur mobile */
+#modal, #coachModal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center;
+    padding: 15px; opacity: 0; transition: opacity 0.4s ease;
+}
+#modal.active, #coachModal.active { opacity: 1; }
+
+.modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    max-width: 95%; width: 100%; max-height: 90vh; overflow-y: auto;
+    padding: 25px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    position: relative; animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.close {
+    position: absolute; top: 15px; right: 20px; font-size: 32px; cursor: pointer;
+    color: #aaa; transition: color 0.3s;
+}
+.close:hover { color: #333; }
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 15px; }
+.form-group input, .form-group select {
+    width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 12px; font-size: 15px;
+    transition: border 0.3s;
+}
+.form-group input:focus, .form-group select:focus { border-color: #667eea; outline: none; }
+
+.btn { width: 100%; margin-top: 10px; font-size: 16px; padding: 14px; }
+
+/* Responsive */
 @media (max-width: 768px) {
-    .player-card { width: 70px; min-height: 105px; }
+    .player-card { width: 65px; height: 100px; }
+    .player-flag { font-size: 20px; }
     .player-name { font-size: 10px; }
 
-    .coach-card, .goat-card {
-        width: 60px; height: 80px;
-    }
-    .coach-card .flag, .goat-card .flag { font-size: 24px; }
-    .coach-card .name, .goat-card .name { font-size: 9px; max-width: 55px; }
-}
-
-@media (max-width: 480px) {
-    .coach-card, .goat-card {
-        width: 55px; height: 75px;
-    }
+    .coach-card, .goat-card { width: 55px; height: 80px; }
     .coach-card .flag, .goat-card .flag { font-size: 22px; }
     .coach-card .name, .goat-card .name { font-size: 8px; }
-}
 
-@media (max-width: 600px) {
-    .control-group { flex-direction: column; }
-    .control-group > * { width: 100%; }
-    .team-name-display { font-size: 18px; }
+    #field { padding: 20px 10px 70px; min-height: 550px; }
 }
 </style>
 </head>
