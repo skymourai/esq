@@ -178,6 +178,53 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
     }
 }
 
+@media (max-width: 768px) {
+    .player-card.coach {
+        border: 2px solid #ffd700;
+    }
+    .player-card.goat {
+        border: 2px solid #ff4d4d;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    /* Coach & GOAT en carré */
+    .player-card.coach,
+    .player-card.goat {
+        width: 60px;
+        height: 60px;
+        min-height: unset;
+        padding: 4px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Image / icône */
+    .player-card.coach img,
+    .player-card.goat img {
+        width: 26px;
+        height: 26px;
+        object-fit: contain;
+        margin-bottom: 2px;
+    }
+
+    /* Nom coach / goat */
+    .player-card.coach .player-name,
+    .player-card.goat .player-name {
+        font-size: 9px;
+        line-height: 1.1;
+        text-align: center;
+        white-space: normal;
+        word-break: break-word;
+    }
+}
+
+
 
 @media (max-width: 600px) {
     .control-group { flex-direction: column; }
