@@ -5,33 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eleven Squad Builder</title>
 <style>
-/* Ton CSS original (légèrement nettoyé mais identique) */
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
 }
-.role-label {
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: #fff;
-    opacity: 0.8;
-    margin-bottom: 2px;
-}
-.coach-display,
-.goat-display {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-
-
 
 .container { max-width: 1200px; margin: 0 auto; }
+
 header { text-align: center; color: white; margin-bottom: 30px; }
 h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 10px; }
 
@@ -58,8 +42,6 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 .control-group select, .control-group input {
     padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none;
 }
-.control-group select:focus, .control-group input:focus { border-color: #667eea; }
-
 .btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
     border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer;
@@ -78,7 +60,8 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 
 #field {
     position: relative; background: linear-gradient(180deg, #2d5016 0%, #1a3a0f 100%);
-    border-radius: 20px; padding: 50px 20px 80px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); min-height: 650px;
+    border-radius: 20px; padding: 50px 20px 90px 20px; /* plus de place en bas */
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3); min-height: 650px;
 }
 #field::before { content: ''; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: rgba(255,255,255,0.3); }
 #field::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
@@ -102,60 +85,86 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 .player-club { font-size: 9px; color: #333; margin-top: 2px; }
 .empty-text { color: rgba(255,255,255,0.6); font-size: 11px; font-weight: bold; text-align: center; }
 
-.goat-display .role-label {
-    color: gold;
-}
-
+/* ==================== COACH & GOAT - RESPONSIVE ==================== */
 .coach-display,
 .goat-display {
-    flex-direction: column;
+    position: absolute;
+    bottom: 20px; /* un peu plus haut pour éviter chevauchement gardien */
+    padding: 10px 14px;
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: transform 0.3s;
+    z-index: 10;
+    min-width: 100px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.coach-display { left: 15px; background: rgba(0,0,0,0.5); color: white; }
+.goat-display { right: 15px; background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; border: 2px solid #fff; }
+
+.coach-display:hover,
+.goat-display:hover { transform: scale(1.08); }
+
+/* Disposition par défaut (desktop) : horizontal */
+.coach-display,
+.goat-display {
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
-}
-
-.player-name {
-    font-size: 12px;
-    line-height: 1.2;
-    text-align: center;
-    white-space: normal;
-    word-break: break-word;
-    overflow: visible;
-}
-
-
-.role-label {
-    font-size: 11px;
+    gap: 10px;
     font-weight: bold;
-    text-transform: uppercase;
-    opacity: 0.85;
-    margin-bottom: 3px;
+    font-size: 15px;
 }
 
-.goat-display .role-label {
-    color: black;
+/* Sur mobile : passage en colonne + taille réduite */
+@media (max-width: 768px) {
+    .coach-display,
+    .goat-display {
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 10px;
+        font-size: 13px;
+        min-width: 80px;
+        bottom: 15px;
+    }
+
+    .coach-display .coach-flag,
+    .goat-display .goat-flag {
+        font-size: 22px;
+    }
+
+    .coach-display .coach-name,
+    .goat-display .goat-name {
+        font-size: 11px;
+        line-height: 1.2;
+        text-align: center;
+        max-width: 90px;
+        word-wrap: break-word;
+    }
+
+    /* Évite tout chevauchement avec le gardien (première row) */
+    #field {
+        padding-bottom: 100px;
+    }
 }
 
-.team-name-display {
-    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-    letter-spacing: 0.5px;
+@media (max-width: 480px) {
+    .coach-display,
+    .goat-display {
+        padding: 6px 8px;
+        min-width: 70px;
+        font-size: 12px;
+    }
+    .coach-display .coach-flag,
+    .goat-display .goat-flag { font-size: 20px; }
+    .coach-display .coach-name,
+    .goat-display .goat-name { font-size: 10px; }
 }
-
-
-
-
-.coach-display, .goat-display {
-    position: absolute; bottom: 15px; padding: 10px 16px; border-radius: 12px;
-    display: flex; align-items: center; gap: 10px; font-weight: bold; z-index: 10;
-    backdrop-filter: blur(4px); cursor: pointer; transition: all 0.3s;
-}
-.coach-display { left: 15px; background: rgba(0,0,0,0.45); color: white; }
-.coach-display:hover, .goat-display:hover { transform: scale(1.05); }
-.goat-display { right: 15px; background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000;
-    box-shadow: 0 4px 15px rgba(255,215,0,0.6); border: 2px solid #fff; }
 
 .hidden { display: none; }
 
-/* Modals */
+/* Modals et autres (inchangés) */
 #modal, #coachModal {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px;
@@ -164,111 +173,17 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
     background: white; max-width: 500px; width: 100%; padding: 30px; border-radius: 20px; position: relative;
 }
 .close { position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #999; }
-.close:hover { color: #333; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
-.form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
 
-/* Responsive */
-
+/* Responsive général */
 @media (max-width: 768px) {
-    .player-card {
-        width: 70px;
-        min-height: 105px;
-    }
+    .player-card { width: 70px; min-height: 105px; }
+    .player-name { font-size: 10px; }
 }
-
-@media (max-width: 768px) {
-    .player-card.coach {
-        border: 2px solid #ffd700;
-    }
-    .player-card.goat {
-        border: 2px solid #ff4d4d;
-    }
-}
-
-
-@media (max-width: 768px) {
-
-    /* Coach & GOAT en carré */
-    .player-card.coach,
-    .player-card.goat {
-        width: 60px;
-        height: 60px;
-        min-height: unset;
-        padding: 4px;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /* Image / icône */
-    .player-card.coach img,
-    .player-card.goat img {
-        width: 26px;
-        height: 26px;
-        object-fit: contain;
-        margin-bottom: 2px;
-    }
-
-    /* Nom coach / goat */
-    .player-card.coach .player-name,
-    .player-card.goat .player-name {
-        font-size: 9px;
-        line-height: 1.1;
-        text-align: center;
-        white-space: normal;
-        word-break: break-word;
-    }
-}
-
-
-
 @media (max-width: 600px) {
     .control-group { flex-direction: column; }
     .control-group > * { width: 100%; }
     .team-name-display { font-size: 18px; }
 }
-
-@media (max-width: 768px) {
-
-    /* RESET TOTAL coach & goat */
-    .player-card.coach,
-    .player-card.goat {
-        all: unset;                     /* 🔥 reset complet */
-        width: 48px !important;
-        height: 48px !important;
-        background: rgba(0,0,0,0.6);
-        border-radius: 8px;
-        display: flex !important;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-sizing: border-box;
-    }
-
-    /* Icône / image */
-    .player-card.coach img,
-    .player-card.goat img {
-        width: 22px !important;
-        height: 22px !important;
-        margin: 0 !important;
-    }
-
-    /* Nom ultra compact */
-    .player-card.coach .player-name,
-    .player-card.goat .player-name {
-        font-size: 7px !important;
-        line-height: 1;
-        margin-top: 2px;
-        max-height: 14px;
-        overflow: hidden;
-        text-align: center;
-    }
-}
-
 </style>
 </head>
 <body>
