@@ -83,13 +83,31 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 #field::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; }
 
-.row { display: flex; justify-content: space-around; margin: 20px 0; z-index: 1; position: relative; }
+/* Ligne du gardien centrée (toujours au-dessus) */
+.gk-row {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center;
+    margin: 20px 0;
+    gap: 20px; /* espace si tu mets coach/gk/goat */
+}
+
+/* Toutes les autres lignes */
+.row:not(.gk-row) {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 40px;
+    margin: 20px 0;
+}
+
+
+
 
 .player-card {
-    width: 90px; height: 120px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    width: 80px; height: 120px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     border-radius: 10px; padding: 8px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: all 0.3s; flex-shrink: 0;
+    transition: all 0.3s; flex-shrink: 1;
 }
 .player-card:hover { transform: translateY(-10px) scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .player-card.filled { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%); }
@@ -293,28 +311,6 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
         padding: 4px 8px;
     }
 }
-/* ===================== */
-/* EXPORT MODE ONLY */
-/* ===================== */
-
-#field.export-mode .coach-display,
-#field.export-mode .goat-display {
-    position: absolute;
-    bottom: -60px; /* sous le terrain */
-    top: auto;
-    transform: translateX(-50%);
-}
-
-/* Coach à gauche du centre */
-#field.export-mode .coach-display {
-    left: 45%;
-}
-
-/* GOAT à droite du centre */
-#field.export-mode .goat-display {
-    left: 55%;
-}
-
 
 
 </style>
@@ -344,7 +340,7 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
         <p>Créez votre équipe de rêve - Toutes époques confondues.</p>
 <p>• Sélectionnez vos joueurs, votre coach et votre meilleur joueur.</p>
 <p>• Cliquez sur exporter, prenez une capture d'ecran et partagez votre "best team".</p>
-<p>Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contactz nous pour ajouté des correctifs. Application à but communautaire. </p>
+<p>Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contactez nous pour des correctifs. Application à but communautaire. </p>
     </header>
 
     <div class="tabs">
@@ -830,90 +826,63 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById(tabName)?.classList.add('active');
 }
+let squad = {}; // Stocke les joueurs par position
+let currentPos = null; // Position actuellement sélectionnée
 
 
 
+
+
+// Dessiner le terrain
 function drawField() {
     const field = document.getElementById('field');
     field.innerHTML = '';
 
-    /* === COACH === */
-    const coachDiv = document.createElement('div');
-    coachDiv.id = 'coach-display';
-    coachDiv.className = 'coach-display hidden';
-    coachDiv.innerHTML = `
-        <div class="role-label">Coach</div>
-        <span class="coach-flag"></span>
-        <span class="coach-name"></span>
-    `;
-    coachDiv.onclick = openCoachModal;
-    field.appendChild(coachDiv);
-
-    /* === GOAT === */
-    const goatDiv = document.createElement('div');
-    goatDiv.id = 'goat-display';
-    goatDiv.className = 'goat-display hidden';
-    goatDiv.innerHTML = `
-        <div class="role-label">Le GOAT</div>
-        <span class="goat-flag"></span>
-        <span class="goat-name"></span>
-    `;
-    goatDiv.onclick = openGoatModal;
-    field.appendChild(goatDiv);
-
-    /* Mise à jour des affichages */
-    updateCoachDisplay();
-    updateGoatDisplay();
-
-    /* === JOUEURS === */
     const formation = document.getElementById('formation').value;
-    const rows = formations[formation];
+    const lines = formations[formation];
+    const card = document.createElement('div');
+    card.className = 'player-card empty';
+    card.dataset.position = position;
 
-    for (let i = rows.length - 1; i >= 0; i--) {
-        const rowDiv = document.createElement('div');
-rowDiv.className = 'row';
-
-if (rows[i][0] === 'GK') {
-    rowDiv.classList.add('gk-row');
-}
+    card.addEventListener('click', () => openModal(card));
 
 
-        rows[i].forEach((pos, index) => {
-            const posKey = `${i}-${index}`;
-            const player = currentSquad.find(p => p.posKey === posKey);
+    // Inverser les lignes pour que ST soit en haut et GK en bas
+    const reversedLines = [...lines].reverse();
 
+    reversedLines.forEach(line => {
+        const row = document.createElement('div');
+        row.classList.add('row');
+        if (line.includes('GK')) row.classList.add('gk-row');
+
+        // Centrer GK, espacer les autres lignes
+        row.style.justifyContent = line.includes('GK') ? 'center' : 'space-between';
+
+        line.forEach(pos => {
             const card = document.createElement('div');
-            card.className = player ? 'player-card filled' : 'player-card empty';
+            card.classList.add('player-card');
+            card.classList.add(squad[pos] ? 'filled' : 'empty');
 
-            card.innerHTML = player ? `
-                <div class="player-position">${pos}</div>
-                <div class="player-flag">${player.flag}</div>
-                <div class="player-name">${player.name}</div>
-                ${player.club ? `<div class="player-club">${player.club}</div>` : ''}
-            ` : `
-                <div class="empty-text">${pos}<br>+</div>
-            `;
+            if (squad[pos]) {
+                card.innerHTML = `
+                    <div class="player-position">${pos}</div>
+                    <div class="player-flag">${squad[pos].flag}</div>
+                    <div class="player-name">${squad[pos].name}</div>
+                    <div class="player-club">${squad[pos].club || ''}</div>
+                `;
+            } else {
+                card.innerHTML = `<div class="empty-text">+ ${pos}</div>`;
+            }
 
-            card.onclick = () => openModal(pos, i, index);
-            rowDiv.appendChild(card);
+            card.onclick = () => openPlayerModal(pos);
+            row.appendChild(card);
         });
 
-        field.appendChild(rowDiv);
-    }
-
-    updateTeamNameDisplay();
+        field.appendChild(row);
+    });
 }
 
 
-function openModal(position, rowIndex, posIndex) {
-    currentPosition = { position, posKey: `${rowIndex}-${posIndex}`, isGoat: false };
-    document.getElementById('modalTitle').textContent = 'Ajouter un joueur';
-    const player = currentSquad.find(p => p.posKey === currentPosition.posKey);
-    document.getElementById('playerName').value = player ? player.name : '';
-    document.getElementById('playerFlag').value = player ? player.flag : '🇧🇷';
-    document.getElementById('playerClub').value = player ? (player.club || '') : '';
-    document.getElementById('modal').style.display = 'flex';
-}
 
 function openGoatModal() {
     currentPosition = { isGoat: true };
@@ -935,36 +904,19 @@ function openCoachModal() {
     }
 }
 
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
 function closeCoachModal() { document.getElementById('coachModal').style.display = 'none'; }
 
-function addPlayer() {
-    const name = document.getElementById('playerName').value.trim();
-    const flag = document.getElementById('playerFlag').value;
-    const club = document.getElementById('playerClub').value.trim();
-    if (!name) return alert('Nom requis');
 
-    if (currentPosition.isGoat) {
-        goat = { name, flag, club: club || null };
-        updateGoatDisplay();
-    } else if (currentPosition.posKey) {
-        currentSquad = currentSquad.filter(p => p.posKey !== currentPosition.posKey);
-        currentSquad.push({ name, flag, club: club || null, posKey: currentPosition.posKey, position: currentPosition.position });
-        drawField();
-    } else if (currentPosition.isCoach) {
-        // pas utilisé ici
-    }
-    closeModal();
-}
 
 function saveCoach() {
-    const name = document.getElementById('coachName').value.trim() || document.getElementById('coachPreset').value;
+    const name = document.getElementById('coachName').value;
     const flag = document.getElementById('coachFlag').value;
-    if (!name) return alert('Nom requis');
-    coach = { name, flag };
-    updateCoachDisplay();
+
+    const coachDisplay = document.querySelector('.coach-display');
+    coachDisplay.innerHTML = `<span class="role-label">Coach</span><span>${flag} ${name}</span>`;
     closeCoachModal();
 }
+
 
 function updateCoachDisplay() {
     const container = document.getElementById('coach-display');
@@ -977,6 +929,38 @@ function updateCoachDisplay() {
     container.querySelector('.coach-flag').textContent = coach.flag;
     container.classList.remove('hidden');
 }
+
+let selectedCard = null; // Carte en cours de remplissage
+
+function openModal(cardElement) {
+    selectedCard = cardElement;
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    selectedCard = null;
+}
+
+function addPlayer() {
+    if (!selectedCard) return;
+
+    const name = document.getElementById('playerName').value;
+    const flag = document.getElementById('playerFlag').value;
+    const club = document.getElementById('playerClub').value;
+
+    selectedCard.classList.remove('empty');
+    selectedCard.classList.add('filled');
+    selectedCard.innerHTML = `
+        <div class="player-position">${selectedCard.dataset.position}</div>
+        <div class="player-flag">${flag}</div>
+        <div class="player-name">${name}</div>
+        <div class="player-club">${club}</div>
+    `;
+
+    closeModal();
+}
+
 
 function selectSuggestion(player) {
     document.getElementById('playerName').value = player.name;
@@ -1053,28 +1037,100 @@ function showSuggestions() {
 }
 
 function exportAsImage() {
-    const exportArea = document.getElementById('export-area');
-    const field = document.getElementById('field');
-    const teamNameDisplay = document.getElementById('team-name-display');
+    // Forcer l’affichage du nom d’équipe même s’il était caché
+    const teamDisplay = document.getElementById('team-name-display');
+    teamDisplay.classList.remove('hidden');
 
-    teamNameDisplay.classList.remove('hidden');
+    // Créer la nouvelle fenêtre immédiatement
+    const win = window.open('', '_blank');
+    if (!win) {
+        alert("Autorise les popups pour exporter l’image !");
+        return;
+    }
 
-    // 👉 ACTIVER LE MODE EXPORT
-    field.classList.add('export-mode');
+    // Écrire le template propre dans la nouvelle fenêtre
+    win.document.write(`
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Mon Eleven de Légende</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 20px;
+                    background: #0f172a;
+                    color: white;
+                    font-family: system-ui, -apple-system, sans-serif;
+                    text-align: center;
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                }
+                h1 {
+                    font-size: 1.8em;
+                    margin-bottom: 20px;
+                    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+                }
+                .image-container {
+                    max-width: 100%;
+                    padding: 10px;
+                }
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+                }
+                button {
+                    margin-top: 25px;
+                    padding: 14px 32px;
+                    font-size: 17px;
+                    font-weight: bold;
+                    background: linear-gradient(135deg, #22c55e, #16a34a);
+                    color: white;
+                    border: none;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+                }
+                button:active {
+                    transform: scale(0.95);
+                }
+            </style>
+        </head>
+        <body>
+            <h1>📸 Fait ta capture d'ecran.</h1>
+            <div class="image-container">
+                <img id="exportedImage" src="" alt="Mon équipe" />
+            </div>
+            
+        </body>
+        </html>
+    `);
+    win.document.close();
 
-    html2canvas(exportArea, {
-        backgroundColor: null,
-        scale: 2
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'eleven-squad.png';
-        link.href = canvas.toDataURL();
-        link.click();
-
-        // 👉 RETOUR À LA NORMALE
-        field.classList.remove('export-mode');
-        teamNameDisplay.classList.add('hidden');
-    });
+    // Attendre un peu que la fenêtre soit prête, puis capturer
+    setTimeout(() => {
+        html2canvas(document.getElementById('export-area'), {
+            scale: 3,                    // Haute qualité
+            backgroundColor: null,       // Transparent → fond du terrain visible
+            useCORS: true,
+            logging: false,
+            width: document.getElementById('export-area').scrollWidth,
+            height: document.getElementById('export-area').scrollHeight
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            win.document.getElementById('exportedImage').src = imgData;
+        }).catch(err => {
+            console.error("Erreur html2canvas :", err);
+            win.close();
+            alert("Erreur lors de la génération de l’image. Réessaie.");
+        });
+    }, 500);
 }
 
 // Le reste de ton code JS (drawField, modals, etc.) reste inchangé
