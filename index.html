@@ -190,82 +190,111 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 
 @media (max-width: 768px) {
 
-    /* Terrain compact */
+    body {
+        padding: 10px;
+    }
+
+    /* Terrain ultra compact */
     #field {
-        padding: 12px 6px 50px;
-        min-height: unset;
+        padding: 8px 4px 40px;
+        border-radius: 14px;
     }
 
-    /* Lignes serrées */
+    /* Lignes très serrées */
     .row {
-        margin: 6px 0;
+        margin: 4px 0;
     }
 
-    /* === GK ROW : coach + gardien + goat === */
+    /* === GK ROW : Coach | GK | GOAT === */
     .gk-row {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
     }
 
-    /* Cartes joueurs */
+    /* === CARTES JOUEURS === */
     .player-card {
-        width: 58px;
-        height: 82px;
-        padding: 4px;
-        border-radius: 10px;
+        width: 52px;
+        height: 72px;
+        padding: 3px;
+        border-radius: 8px;
     }
 
     .player-position {
-        font-size: 9px;
+        font-size: 8px;
+        margin-bottom: 2px;
     }
 
     .player-flag {
-        font-size: 20px;
+        font-size: 18px;
+        margin: 2px 0;
     }
 
     .player-name {
-        font-size: 9px;
-        line-height: 1.1;
-        white-space: normal;
+        font-size: 8px;
+        line-height: 1.05;
+        text-align: center;
         word-break: break-word;
+        max-height: 24px;
+        overflow: hidden;
     }
 
     .player-club {
-        font-size: 8px;
+        display: none; /* 🔥 trop petit sur mobile */
     }
 
-    /* Coach & GOAT : carrés et intégrés */
+    .empty-text {
+        font-size: 9px;
+    }
+
+    /* === COACH & GOAT MINI CARDS === */
     .coach-display,
     .goat-display {
-        position: static; /* 🔥 clé */
-        width: 46px;
-        height: 46px;
-        padding: 4px;
-        border-radius: 10px;
+        position: static;
+        width: 42px;
+        height: 42px;
+        padding: 3px;
+        border-radius: 8px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 2px;
+        gap: 1px;
         flex-shrink: 0;
+    }
+
+    .coach-display {
+        background: rgba(0,0,0,0.55);
+    }
+
+    .goat-display {
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
     }
 
     .coach-display .role-label,
     .goat-display .role-label {
-        font-size: 7px;
+        font-size: 6px;
         margin-bottom: 0;
+        opacity: 0.85;
     }
 
     .coach-display span,
     .goat-display span {
-        font-size: 8px;
+        font-size: 7px;
         line-height: 1;
         text-align: center;
         word-break: break-word;
+        max-width: 36px;
+    }
+
+    /* Nom d’équipe plus discret */
+    .team-name-display {
+        font-size: 14px;
+        padding: 4px 8px;
     }
 }
+
 
 </style>
 </head>
