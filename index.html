@@ -299,7 +299,8 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 </head>
 <body>
 <div class="container">
-    <footer style="
+
+<footer style="
     position: fixed;
     bottom: 0;
     left: 0;
@@ -320,8 +321,8 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
     <header>
         <h1>⚽ Eleven Squad Builder</h1>
         <p>Créez votre équipe de rêve - Toutes époques confondues. 
-Sélectionnez vos joueurs et votre coach, cliquez sur exporter, prenez une capture d'ecran et partagez votre "best team".
-Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contactz nous pour ajouté des correctifs. Application à but communautaire. </p>
+Sélectionnez vos joueurs, votre coach et votre meilleur joueurs, cliquez sur exporter, prenez une capture d'ecran et partagez votre "best team".
+Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contactez nous pour ajouter des correctifs. Application à but communautaire. </p>
     </header>
 
     <div class="tabs">
@@ -360,27 +361,17 @@ Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contac
                     <option value="5-3-2">5-3-2</option>
                     <option value="5-4-1">5-4-1</option>
                 </select>
-
-                <button class="btn btn-success" onclick="exportAsImage()">📸 Exporter</button>
-                <button class="btn btn-secondary" onclick="openCoachModal()">👔 Coach</button>
-                <button class="btn btn-goat" onclick="openGoatModal()">🐐 GOAT</button>
-                <button class="btn" onclick="clearSquad()">🗑️ Réinitialiser</button>
-            </div>
-        </div>
-
-        <div id="export-area">
-            <div id="team-name-display" class="team-name-display hidden">Mon équipe</div>
-            <div id="field"></div>
+            <button class="btn btn-success" onclick="exportAsImage()">📸 Exporter</button>
+            <button class="btn btn-secondary" onclick="openCoachModal()">👔 Coach</button>
+            <button class="btn btn-goat" onclick="openGoatModal()">🐐 GOAT</button>
+            <button class="btn" onclick="clearSquad()">🗑️ Réinitialiser</button>
         </div>
     </div>
-
-    <!-- Autres onglets (Mes équipes, Communauté) - tu peux les garder tels quels -->
-    <div id="mySquads" class="content">
-        <div class="controls"><h2 style="text-align:center;">Mes Équipes Sauvegardées</h2></div>
-        <div id="squadsList" class="squad-list"></div>
+    <div id="export-area">
+        <div id="team-name-display" class="team-name-display hidden">Mon équipe</div>
+        <div id="field"></div>
     </div>
 </div>
-
 
 <!-- Modal joueur -->
 <div id="modal">
@@ -496,7 +487,6 @@ Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contac
         <button class="btn" style="width:100%;" onclick="saveCoach()">✅ Valider</button>
     </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 const formations = {
@@ -802,202 +792,67 @@ let goat = null;
 let currentPosition = null;
 let savedSquads = JSON.parse(localStorage.getItem('elevenSquads') || '[]');
 
-function switchTab(tabName) {
-    document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(tabName)?.classList.add('active');
+function switchTab(id) {
+    document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
-
-
-
 function drawField() {
     const field = document.getElementById('field');
     field.innerHTML = '';
 
-    /* === COACH === */
-    const coachDiv = document.createElement('div');
-    coachDiv.id = 'coach-display';
-    coachDiv.className = 'coach-display hidden';
-    coachDiv.innerHTML = `
-        <div class="role-label">Coach</div>
-        <span class="coach-flag"></span>
-        <span class="coach-name"></span>
-    `;
-    coachDiv.onclick = openCoachModal;
-    field.appendChild(coachDiv);
-
-    /* === GOAT === */
-    const goatDiv = document.createElement('div');
-    goatDiv.id = 'goat-display';
-    goatDiv.className = 'goat-display hidden';
-    goatDiv.innerHTML = `
-        <div class="role-label">Le GOAT</div>
-        <span class="goat-flag"></span>
-        <span class="goat-name"></span>
-    `;
-    goatDiv.onclick = openGoatModal;
-    field.appendChild(goatDiv);
-
-    /* Mise à jour des affichages */
-    updateCoachDisplay();
-    updateGoatDisplay();
-
-    /* === JOUEURS === */
     const formation = document.getElementById('formation').value;
-    const rows = formations[formation];
 
-    for (let i = rows.length - 1; i >= 0; i--) {
-        const rowDiv = document.createElement('div');
-rowDiv.className = 'row';
+    // On inverse les lignes pour que GK soit en bas
+    const lines = [...formations[formation]].reverse();
 
-if (rows[i][0] === 'GK') {
-    rowDiv.classList.add('gk-row');
-}
-
-
-        rows[i].forEach((pos, index) => {
-            const posKey = `${i}-${index}`;
-            const player = currentSquad.find(p => p.posKey === posKey);
-
+    lines.forEach((line, i) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        line.forEach((pos, j) => {
             const card = document.createElement('div');
-            card.className = player ? 'player-card filled' : 'player-card empty';
-
-            card.innerHTML = player ? `
-                <div class="player-position">${pos}</div>
-                <div class="player-flag">${player.flag}</div>
-                <div class="player-name">${player.name}</div>
-                ${player.club ? `<div class="player-club">${player.club}</div>` : ''}
-            ` : `
-                <div class="empty-text">${pos}<br>+</div>
-            `;
-
-            card.onclick = () => openModal(pos, i, index);
-            rowDiv.appendChild(card);
+            card.className = 'player-card empty';
+            card.innerHTML = `<div class="player-position">${pos}</div><div class="empty-text">Vide</div>`;
+            // On stocke l'index "réel" pour modal
+            const realRow = formations[formation].length - 1 - i;
+            card.onclick = () => openModal(realRow, j);
+            row.appendChild(card);
         });
+        field.appendChild(row);
+    });
 
-        field.appendChild(rowDiv);
-    }
-
-    updateTeamNameDisplay();
+    if (coach) renderCoach();
+    if (goat) renderGoat();
 }
 
 
-function openModal(position, rowIndex, posIndex) {
-    currentPosition = { position, posKey: `${rowIndex}-${posIndex}`, isGoat: false };
-    document.getElementById('modalTitle').textContent = 'Ajouter un joueur';
-    const player = currentSquad.find(p => p.posKey === currentPosition.posKey);
-    document.getElementById('playerName').value = player ? player.name : '';
-    document.getElementById('playerFlag').value = player ? player.flag : '🇧🇷';
-    document.getElementById('playerClub').value = player ? (player.club || '') : '';
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function openGoatModal() {
-    currentPosition = { isGoat: true };
-    document.getElementById('modalTitle').textContent = '🐐 Choisir THE GOAT';
-    document.getElementById('playerName').value = goat ? goat.name : '';
-    document.getElementById('playerFlag').value = goat ? goat.flag : '🌍';
-    document.getElementById('playerClub').value = goat ? (goat.club || '') : '';
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function openCoachModal() {
-    document.getElementById('coachModal').style.display = 'flex';
-    if (coach) {
-        document.getElementById('coachName').value = coach.name;
-        document.getElementById('coachFlag').value = coach.flag;
-    } else {
-        document.getElementById('coachName').value = '';
-        document.getElementById('coachFlag').value = '🏴󠁧󠁢󠁥󠁮󠁧󠁿';
-    }
-}
-
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
-function closeCoachModal() { document.getElementById('coachModal').style.display = 'none'; }
-
+function openModal(row,col) { window.modalPos = {row,col}; document.getElementById('modal').style.display='flex'; }
+function closeModal() { document.getElementById('modal').style.display='none'; }
 function addPlayer() {
-    const name = document.getElementById('playerName').value.trim();
+    const name = document.getElementById('playerName').value;
     const flag = document.getElementById('playerFlag').value;
-    const club = document.getElementById('playerClub').value.trim();
-    if (!name) return alert('Nom requis');
-
-    if (currentPosition.isGoat) {
-        goat = { name, flag, club: club || null };
-        updateGoatDisplay();
-    } else if (currentPosition.posKey) {
-        currentSquad = currentSquad.filter(p => p.posKey !== currentPosition.posKey);
-        currentSquad.push({ name, flag, club: club || null, posKey: currentPosition.posKey, position: currentPosition.position });
-        drawField();
-    } else if (currentPosition.isCoach) {
-        // pas utilisé ici
-    }
+    const club = document.getElementById('playerClub').value;
+    const {row,col} = window.modalPos;
+    const fieldRow = document.getElementById('field').children[row];
+    const card = fieldRow.children[col];
+    card.className = 'player-card filled';
+    card.innerHTML = `<div class="player-position">${card.querySelector('.player-position').innerText}</div>
+                      <div class="player-flag">${flag}</div>
+                      <div class="player-name">${name}</div>
+                      <div class="player-club">${club}</div>`;
     closeModal();
 }
-
+function openCoachModal() { document.getElementById('coachModal').style.display='flex'; }
+function closeCoachModal() { document.getElementById('coachModal').style.display='none'; }
 function saveCoach() {
-    const name = document.getElementById('coachName').value.trim() || document.getElementById('coachPreset').value;
+    const name = document.getElementById('coachName').value;
     const flag = document.getElementById('coachFlag').value;
-    if (!name) return alert('Nom requis');
-    coach = { name, flag };
-    updateCoachDisplay();
-    closeCoachModal();
+    coach = {name,flag};
+    renderCoach(); closeCoachModal();
 }
-
-function updateCoachDisplay() {
-    const container = document.getElementById('coach-display');
-    if (!coach) {
-        container.classList.add('hidden');
-        return;
-    }
-
-    container.querySelector('.coach-name').textContent = coach.name;
-    container.querySelector('.coach-flag').textContent = coach.flag;
-    container.classList.remove('hidden');
-}
-
-function selectSuggestion(player) {
-    document.getElementById('playerName').value = player.name;
-    document.getElementById('playerFlag').value = player.flag;
-    document.getElementById('playerClub').value = player.club || '';
-    document.getElementById('suggestions').innerHTML = '';
-}
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.form-group')) {
-        document.getElementById('suggestions').innerHTML = '';
-    }
-});
-
-function updateGoatDisplay() {
-    const container = document.getElementById('goat-display');
-    if (!goat) {
-        container.classList.add('hidden');
-        return;
-    }
-
-    container.querySelector('.goat-name').textContent = goat.name;
-    container.querySelector('.goat-flag').textContent = goat.flag;
-    container.classList.remove('hidden');
-}
-
-
-function updateTeamNameDisplay() {
-    const name = document.getElementById('teamName').value.trim();
-    const display = document.getElementById('team-name-display');
-    if (name) {
-        display.textContent = name;
-        display.classList.remove('hidden');
-    } else {
-        display.classList.add('hidden');
-    }
-}
-
-function clearSquad() {
-    if (confirm('Réinitialiser toute l\'équipe ?')) {
-        currentSquad = [];
-        coach = null;
-        goat = null;
-        drawField();
-    }
+function renderCoach() {
+    let el = document.querySelector('.coach-display');
+    if(!el){ el = document.createElement('div'); el.className='coach-display'; document.getElementById('field').appendChild(el);}
+    el.innerHTML = `${coach.flag} ${coach.name}`;
 }
 function showSuggestions() {
     const input = document.getElementById('playerName').value.trim().toLowerCase();
@@ -1028,7 +883,24 @@ function showSuggestions() {
         suggestionsDiv.appendChild(item);
     });
 }
-
+function openGoatModal() { document.getElementById('goatModal').style.display='flex'; }
+function closeGoatModal() { document.getElementById('goatModal').style.display='none'; }
+function saveGoat() {
+    const name = document.getElementById('goatName').value;
+    const flag = document.getElementById('goatFlag').value;
+    goat = {name,flag};
+    renderGoat(); closeGoatModal();
+}
+function renderGoat() {
+    let el = document.querySelector('.goat-display');
+    if(!el){ el = document.createElement('div'); el.className='goat-display'; document.getElementById('field').appendChild(el);}
+    el.innerHTML = `${goat.flag} ${goat.name}`;
+}
+function updateTeamNameDisplay(){
+    const val = document.getElementById('teamName').value.trim();
+    const display = document.getElementById('team-name-display');
+    if(val){ display.textContent = val; display.classList.remove('hidden'); } else { display.classList.add('hidden'); }
+}
 function exportAsImage() {
     // Forcer l’affichage du nom d’équipe même s’il était caché
     const teamDisplay = document.getElementById('team-name-display');
@@ -1125,10 +997,23 @@ function exportAsImage() {
         });
     }, 500);
 }
+function selectSuggestion(player) {
+    document.getElementById('playerName').value = player.name;
+    document.getElementById('playerFlag').value = player.flag;
+    document.getElementById('playerClub').value = player.club || '';
+    document.getElementById('suggestions').innerHTML = '';
+}
 
-// Le reste de ton code JS (drawField, modals, etc.) reste inchangé
+function clearSquad(){
+    drawField();
+    coach=null; goat=null;
+    const coachEl = document.querySelector('.coach-display'); if(coachEl) coachEl.remove();
+    const goatEl = document.querySelector('.goat-display'); if(goatEl) goatEl.remove();
+    document.getElementById('teamName').value=''; updateTeamNameDisplay();
+}
 
 drawField();
 </script>
+</div>
 </body>
 </html>
