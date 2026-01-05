@@ -972,21 +972,27 @@ function exportAsImage() {
     const exportArea = document.getElementById('export-area');
     document.getElementById('team-name-display').classList.remove('hidden');
 
+    // ✅ ouvrir la fenêtre IMMEDIATEMENT (sinon mobile bloque)
+    const win = window.open('', '_blank');
+
+    if (!win) {
+        alert("Autorisez les popups pour exporter l'image");
+        return;
+    }
+
+    const template = document.getElementById('export-template').innerHTML;
+    win.document.open();
+    win.document.write(template);
+    win.document.close();
+
+    // ensuite seulement on capture
     html2canvas(exportArea, {
-        scale: 3,              // 🔥 HD
+        scale: 3,
         backgroundColor: null,
         useCORS: true
     }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
 
-        // Ouvre nouvelle page
-        const win = window.open('', '_blank');
-        const template = document.getElementById('export-template').innerHTML;
-        win.document.open();
-        win.document.write(template);
-        win.document.close();
-
-        // Injecte l’image
         win.onload = () => {
             win.document.getElementById('exportedImage').src = imgData;
         };
