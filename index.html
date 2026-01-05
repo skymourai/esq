@@ -1078,22 +1078,11 @@ function exportAsImage() {
             </style>
         </head>
         <body>
-            <h1>Fait ta capture d'ecran</h1>
+            <h1>📸 Fait ta capture d'ecran.</h1>
             <div class="image-container">
                 <img id="exportedImage" src="" alt="Mon équipe" />
             </div>
             
-            <script>
-                function downloadImage() {
-                    const img = document.getElementById('exportedImage');
-                    const a = document.createElement('a');
-                    a.href = img.src;
-                    a.download = 'eleven-squad-legend.png';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                }
-            <\/script>
         </body>
         </html>
     `);
