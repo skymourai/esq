@@ -968,6 +968,31 @@ function showSuggestions() {
         suggestionsDiv.appendChild(item);
     });
 }
+function exportAsImage() {
+    const exportArea = document.getElementById('export-area');
+    document.getElementById('team-name-display').classList.remove('hidden');
+
+    html2canvas(exportArea, {
+        scale: 3,              // 🔥 HD
+        backgroundColor: null,
+        useCORS: true
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+
+        // Ouvre nouvelle page
+        const win = window.open('', '_blank');
+        const template = document.getElementById('export-template').innerHTML;
+        win.document.open();
+        win.document.write(template);
+        win.document.close();
+
+        // Injecte l’image
+        win.onload = () => {
+            win.document.getElementById('exportedImage').src = imgData;
+        };
+    });
+}
+
 function selectSuggestion(player) {
     document.getElementById('playerName').value = player.name;
     document.getElementById('playerFlag').value = player.flag;
@@ -986,5 +1011,73 @@ document.addEventListener('click', (e) => {
 
 drawField();
 </script>
+<!-- Page export (ouverte dynamiquement) -->
+<template id="export-template">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Export Eleven Squad</title>
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    background: #0f172a;
+    font-family: system-ui, sans-serif;
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.export-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+img {
+    max-width: 100%;
+    width: 720px; /* 🔥 format lisible */
+    height: auto;
+    border-radius: 18px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+}
+</style>
+</head>
+<body>
+<h1>⚽ Mon Eleven de Légende</h1>
+<div class="export-wrapper">
+    <img id="exportedImage" />
+</div>
+<button onclick="download()">⬇️ Télécharger l’image</button>
+
+<script>
+function download() {
+    const img = document.getElementById('exportedImage');
+    const a = document.createElement('a');
+    a.href = img.src;
+    a.download = 'eleven-squad.png';
+    a.click();
+}
+</script>
+</body>
+</html>
+</template>
+
 </body>
 </html>
