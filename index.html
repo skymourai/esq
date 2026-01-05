@@ -83,31 +83,13 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 #field::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; }
 
-/* Ligne du gardien centrée (toujours au-dessus) */
-.gk-row {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center;
-    margin: 20px 0;
-    gap: 20px; /* espace si tu mets coach/gk/goat */
-}
-
-/* Toutes les autres lignes */
-.row:not(.gk-row) {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 40px;
-    margin: 20px 0;
-}
-
-
-
+.row { display: flex; justify-content: space-around; margin: 20px 0; z-index: 1; position: relative; }
 
 .player-card {
-    width: 80px; height: 120px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    width: 90px; height: 120px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     border-radius: 10px; padding: 8px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: all 0.3s; flex-shrink: 1;
+    transition: all 0.3s; flex-shrink: 0;
 }
 .player-card:hover { transform: translateY(-10px) scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .player-card.filled { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%); }
@@ -340,7 +322,7 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
         <p>Créez votre équipe de rêve - Toutes époques confondues.</p>
 <p>• Sélectionnez vos joueurs, votre coach et votre meilleur joueur.</p>
 <p>• Cliquez sur exporter, prenez une capture d'ecran et partagez votre "best team".</p>
-<p>Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contactez nous pour des correctifs. Application à but communautaire. </p>
+<p>Merci de nous soutenir en suivant les liens affilié pour l'Academie BTC. Contactz nous pour ajouté des correctifs. Application à but communautaire. </p>
     </header>
 
     <div class="tabs">
@@ -826,63 +808,90 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById(tabName)?.classList.add('active');
 }
-let squad = {}; // Stocke les joueurs par position
-let currentPos = null; // Position actuellement sélectionnée
 
 
 
-
-
-// Dessiner le terrain
 function drawField() {
     const field = document.getElementById('field');
     field.innerHTML = '';
 
+    /* === COACH === */
+    const coachDiv = document.createElement('div');
+    coachDiv.id = 'coach-display';
+    coachDiv.className = 'coach-display hidden';
+    coachDiv.innerHTML = `
+        <div class="role-label">Coach</div>
+        <span class="coach-flag"></span>
+        <span class="coach-name"></span>
+    `;
+    coachDiv.onclick = openCoachModal;
+    field.appendChild(coachDiv);
+
+    /* === GOAT === */
+    const goatDiv = document.createElement('div');
+    goatDiv.id = 'goat-display';
+    goatDiv.className = 'goat-display hidden';
+    goatDiv.innerHTML = `
+        <div class="role-label">Le GOAT</div>
+        <span class="goat-flag"></span>
+        <span class="goat-name"></span>
+    `;
+    goatDiv.onclick = openGoatModal;
+    field.appendChild(goatDiv);
+
+    /* Mise à jour des affichages */
+    updateCoachDisplay();
+    updateGoatDisplay();
+
+    /* === JOUEURS === */
     const formation = document.getElementById('formation').value;
-    const lines = formations[formation];
-    const card = document.createElement('div');
-    card.className = 'player-card empty';
-    card.dataset.position = position;
+    const rows = formations[formation];
 
-    card.addEventListener('click', () => openModal(card));
+    for (let i = rows.length - 1; i >= 0; i--) {
+        const rowDiv = document.createElement('div');
+rowDiv.className = 'row';
 
-
-    // Inverser les lignes pour que ST soit en haut et GK en bas
-    const reversedLines = [...lines].reverse();
-
-    reversedLines.forEach(line => {
-        const row = document.createElement('div');
-        row.classList.add('row');
-        if (line.includes('GK')) row.classList.add('gk-row');
-
-        // Centrer GK, espacer les autres lignes
-        row.style.justifyContent = line.includes('GK') ? 'center' : 'space-between';
-
-        line.forEach(pos => {
-            const card = document.createElement('div');
-            card.classList.add('player-card');
-            card.classList.add(squad[pos] ? 'filled' : 'empty');
-
-            if (squad[pos]) {
-                card.innerHTML = `
-                    <div class="player-position">${pos}</div>
-                    <div class="player-flag">${squad[pos].flag}</div>
-                    <div class="player-name">${squad[pos].name}</div>
-                    <div class="player-club">${squad[pos].club || ''}</div>
-                `;
-            } else {
-                card.innerHTML = `<div class="empty-text">+ ${pos}</div>`;
-            }
-
-            card.onclick = () => openPlayerModal(pos);
-            row.appendChild(card);
-        });
-
-        field.appendChild(row);
-    });
+if (rows[i][0] === 'GK') {
+    rowDiv.classList.add('gk-row');
 }
 
 
+        rows[i].forEach((pos, index) => {
+            const posKey = `${i}-${index}`;
+            const player = currentSquad.find(p => p.posKey === posKey);
+
+            const card = document.createElement('div');
+            card.className = player ? 'player-card filled' : 'player-card empty';
+
+            card.innerHTML = player ? `
+                <div class="player-position">${pos}</div>
+                <div class="player-flag">${player.flag}</div>
+                <div class="player-name">${player.name}</div>
+                ${player.club ? `<div class="player-club">${player.club}</div>` : ''}
+            ` : `
+                <div class="empty-text">${pos}<br>+</div>
+            `;
+
+            card.onclick = () => openModal(pos, i, index);
+            rowDiv.appendChild(card);
+        });
+
+        field.appendChild(rowDiv);
+    }
+
+    updateTeamNameDisplay();
+}
+
+
+function openModal(position, rowIndex, posIndex) {
+    currentPosition = { position, posKey: `${rowIndex}-${posIndex}`, isGoat: false };
+    document.getElementById('modalTitle').textContent = 'Ajouter un joueur';
+    const player = currentSquad.find(p => p.posKey === currentPosition.posKey);
+    document.getElementById('playerName').value = player ? player.name : '';
+    document.getElementById('playerFlag').value = player ? player.flag : '🇧🇷';
+    document.getElementById('playerClub').value = player ? (player.club || '') : '';
+    document.getElementById('modal').style.display = 'flex';
+}
 
 function openGoatModal() {
     currentPosition = { isGoat: true };
@@ -904,19 +913,36 @@ function openCoachModal() {
     }
 }
 
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
 function closeCoachModal() { document.getElementById('coachModal').style.display = 'none'; }
 
+function addPlayer() {
+    const name = document.getElementById('playerName').value.trim();
+    const flag = document.getElementById('playerFlag').value;
+    const club = document.getElementById('playerClub').value.trim();
+    if (!name) return alert('Nom requis');
 
-
-function saveCoach() {
-    const name = document.getElementById('coachName').value;
-    const flag = document.getElementById('coachFlag').value;
-
-    const coachDisplay = document.querySelector('.coach-display');
-    coachDisplay.innerHTML = `<span class="role-label">Coach</span><span>${flag} ${name}</span>`;
-    closeCoachModal();
+    if (currentPosition.isGoat) {
+        goat = { name, flag, club: club || null };
+        updateGoatDisplay();
+    } else if (currentPosition.posKey) {
+        currentSquad = currentSquad.filter(p => p.posKey !== currentPosition.posKey);
+        currentSquad.push({ name, flag, club: club || null, posKey: currentPosition.posKey, position: currentPosition.position });
+        drawField();
+    } else if (currentPosition.isCoach) {
+        // pas utilisé ici
+    }
+    closeModal();
 }
 
+function saveCoach() {
+    const name = document.getElementById('coachName').value.trim() || document.getElementById('coachPreset').value;
+    const flag = document.getElementById('coachFlag').value;
+    if (!name) return alert('Nom requis');
+    coach = { name, flag };
+    updateCoachDisplay();
+    closeCoachModal();
+}
 
 function updateCoachDisplay() {
     const container = document.getElementById('coach-display');
@@ -929,38 +955,6 @@ function updateCoachDisplay() {
     container.querySelector('.coach-flag').textContent = coach.flag;
     container.classList.remove('hidden');
 }
-
-let selectedCard = null; // Carte en cours de remplissage
-
-function openModal(cardElement) {
-    selectedCard = cardElement;
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-    selectedCard = null;
-}
-
-function addPlayer() {
-    if (!selectedCard) return;
-
-    const name = document.getElementById('playerName').value;
-    const flag = document.getElementById('playerFlag').value;
-    const club = document.getElementById('playerClub').value;
-
-    selectedCard.classList.remove('empty');
-    selectedCard.classList.add('filled');
-    selectedCard.innerHTML = `
-        <div class="player-position">${selectedCard.dataset.position}</div>
-        <div class="player-flag">${flag}</div>
-        <div class="player-name">${name}</div>
-        <div class="player-club">${club}</div>
-    `;
-
-    closeModal();
-}
-
 
 function selectSuggestion(player) {
     document.getElementById('playerName').value = player.name;
