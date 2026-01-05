@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eleven Squad Builder</title>
 <style>
-/* Ton CSS original (légèrement nettoyé mais identique) */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -907,6 +906,18 @@ function updateCoachDisplay() {
     container.classList.remove('hidden');
 }
 
+function selectSuggestion(player) {
+    document.getElementById('playerName').value = player.name;
+    document.getElementById('playerFlag').value = player.flag;
+    document.getElementById('playerClub').value = player.club || '';
+    document.getElementById('suggestions').innerHTML = '';
+}
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.form-group')) {
+        document.getElementById('suggestions').innerHTML = '';
+    }
+});
+
 function updateGoatDisplay() {
     const container = document.getElementById('goat-display');
     if (!goat) {
@@ -968,122 +979,119 @@ function showSuggestions() {
         suggestionsDiv.appendChild(item);
     });
 }
+
 function exportAsImage() {
-    const exportArea = document.getElementById('export-area');
-    document.getElementById('team-name-display').classList.remove('hidden');
+    // Forcer l’affichage du nom d’équipe même s’il était caché
+    const teamDisplay = document.getElementById('team-name-display');
+    teamDisplay.classList.remove('hidden');
 
-    // ✅ ouvrir la fenêtre IMMEDIATEMENT (sinon mobile bloque)
+    // Créer la nouvelle fenêtre immédiatement
     const win = window.open('', '_blank');
-
     if (!win) {
-        alert("Autorisez les popups pour exporter l'image");
+        alert("Autorise les popups pour exporter l’image !");
         return;
     }
 
-    const template = document.getElementById('export-template').innerHTML;
-    win.document.open();
-    win.document.write(template);
+    // Écrire le template propre dans la nouvelle fenêtre
+    win.document.write(`
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Mon Eleven de Légende</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 20px;
+                    background: #0f172a;
+                    color: white;
+                    font-family: system-ui, -apple-system, sans-serif;
+                    text-align: center;
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                }
+                h1 {
+                    font-size: 1.8em;
+                    margin-bottom: 20px;
+                    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+                }
+                .image-container {
+                    max-width: 100%;
+                    padding: 10px;
+                }
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+                }
+                button {
+                    margin-top: 25px;
+                    padding: 14px 32px;
+                    font-size: 17px;
+                    font-weight: bold;
+                    background: linear-gradient(135deg, #22c55e, #16a34a);
+                    color: white;
+                    border: none;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+                }
+                button:active {
+                    transform: scale(0.95);
+                }
+            </style>
+        </head>
+        <body>
+            <h1>⚽ Mon Eleven de Légende</h1>
+            <div class="image-container">
+                <img id="exportedImage" src="" alt="Mon équipe" />
+            </div>
+            <button onclick="downloadImage()">⬇️ Télécharger l’image</button>
+
+            <script>
+                function downloadImage() {
+                    const img = document.getElementById('exportedImage');
+                    const a = document.createElement('a');
+                    a.href = img.src;
+                    a.download = 'eleven-squad-legend.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            <\/script>
+        </body>
+        </html>
+    `);
     win.document.close();
 
-    // ensuite seulement on capture
-    html2canvas(exportArea, {
-        scale: 3,
-        backgroundColor: null,
-        useCORS: true
-    }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-
-        win.onload = () => {
+    // Attendre un peu que la fenêtre soit prête, puis capturer
+    setTimeout(() => {
+        html2canvas(document.getElementById('export-area'), {
+            scale: 3,                    // Haute qualité
+            backgroundColor: null,       // Transparent → fond du terrain visible
+            useCORS: true,
+            logging: false,
+            width: document.getElementById('export-area').scrollWidth,
+            height: document.getElementById('export-area').scrollHeight
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
             win.document.getElementById('exportedImage').src = imgData;
-        };
-    });
+        }).catch(err => {
+            console.error("Erreur html2canvas :", err);
+            win.close();
+            alert("Erreur lors de la génération de l’image. Réessaie.");
+        });
+    }, 500);
 }
 
-function selectSuggestion(player) {
-    document.getElementById('playerName').value = player.name;
-    document.getElementById('playerFlag').value = player.flag;
-    document.getElementById('playerClub').value = player.club || '';
-    document.getElementById('suggestions').innerHTML = '';
-}
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.form-group')) {
-        document.getElementById('suggestions').innerHTML = '';
-    }
-});
-
-
-
-
+// Le reste de ton code JS (drawField, modals, etc.) reste inchangé
 
 drawField();
 </script>
-<!-- Page export (ouverte dynamiquement) -->
-<template id="export-template">
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Export Eleven Squad</title>
-<style>
-body {
-    margin: 0;
-    padding: 20px;
-    background: #0f172a;
-    font-family: system-ui, sans-serif;
-    color: white;
-    text-align: center;
-}
-
-h1 {
-    margin-bottom: 20px;
-}
-
-.export-wrapper {
-    display: flex;
-    justify-content: center;
-}
-
-img {
-    max-width: 100%;
-    width: 720px; /* 🔥 format lisible */
-    height: auto;
-    border-radius: 18px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-}
-
-button {
-    margin-top: 20px;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: #fff;
-}
-</style>
-</head>
-<body>
-<h1>⚽ Mon Eleven de Légende</h1>
-<div class="export-wrapper">
-    <img id="exportedImage" />
-</div>
-<button onclick="download()">⬇️ Télécharger l’image</button>
-
-<script>
-function download() {
-    const img = document.getElementById('exportedImage');
-    const a = document.createElement('a');
-    a.href = img.src;
-    a.download = 'eleven-squad.png';
-    a.click();
-}
-</script>
-</body>
-</html>
-</template>
-
 </body>
 </html>
