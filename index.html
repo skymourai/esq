@@ -372,7 +372,24 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 @media (hover: hover) {
     .desktop-hint { display: block; }
 }
+.watermark {
+    display: none; /* Toujours caché par défaut pour le site */
+    position: absolute;
+    bottom: 5px;   /* Se place à 5px du bord BLANC inférieur */
+    right: 15px;   /* Se place à 15px du bord droit */
+    color: #888;   /* Gris discret */
+    font-size: 11px;
+    pointer-events: none;
+    z-index: 100;
+    width: auto;   
+    align-items: center;
+    gap: 4px;
+}
 
+.watermark strong {
+    color: #555;
+    font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -450,6 +467,9 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
         <div id="export-area">
             <div id="team-name-display" class="team-name-display hidden">Mon équipe</div>
             <div id="field"></div>
+            <div class="watermark">
+            <span>Généré sur <strong>skymourai.github.io/esq/</strong></span>
+            </div>
         </div>
     </div>
 
@@ -1151,65 +1171,50 @@ function clearSquad() {
 function exportAsImage() {
     const element = document.getElementById('export-area');
     const teamDisplay = document.getElementById('team-name-display');
-    
-    // On s'assure que le nom est visible pour la photo
+    const watermark = document.querySelector('.watermark');
+    const btn = document.querySelector('.btn-success');
+    const originalText = btn.textContent;
+
+    // 1. Préparation visuelle
     if(document.getElementById('teamName').value.trim()) {
         teamDisplay.classList.remove('hidden');
     }
+    
+    // On affiche le filigrane (il passera en 'flex' grâce au CSS)
+    if(watermark) watermark.style.display = 'flex';
+    
+    // Forcer la position relative pour que le filigrane s'appuie sur le cadre blanc
+    element.style.position = 'relative';
 
-    // Gestion du bug backdrop-filter
-    const originalBackdrop = teamDisplay.style.backdropFilter;
-    teamDisplay.style.backdropFilter = 'none';
-    // On met un fond semi-transparent solide pour compenser l'absence de flou
-    teamDisplay.style.background = 'rgba(0,0,0,0.7)'; 
-
-    // Bouton de chargement (optionnel, pour l'UX)
-    const btn = document.querySelector('.btn-success');
-    const originalText = btn.textContent;
     btn.textContent = '⏳ Génération...';
 
     html2canvas(element, {
-        scale: 2, // Haute qualité
-        backgroundColor: null,
-        useCORS: true, 
-        logging: false,
-        allowTaint: true // Aide parfois pour certaines images
+        scale: 2,
+        backgroundColor: "#ffffff", // Force le fond blanc pour l'image
+        useCORS: true,
+        logging: false
     }).then(canvas => {
-        // Remettre les styles originaux
-        teamDisplay.style.backdropFilter = originalBackdrop;
-        teamDisplay.style.background = 'rgba(0,0,0,0.45)';
+        // 2. Remise en état de l'interface
+        if(watermark) watermark.style.display = 'none';
         btn.textContent = originalText;
 
-        // Convertir en image
         const imgData = canvas.toDataURL('image/png');
 
-        // 1. Afficher dans la modale
+        // 3. Affichage dans la modale
         const imgContainer = document.getElementById('imgResultContainer');
-        imgContainer.innerHTML = ''; // Vider l'ancien résultat
+        imgContainer.innerHTML = ''; 
         const img = document.createElement('img');
         img.src = imgData;
-        img.alt = "Mon Équipe Eleven Builder";
         imgContainer.appendChild(img);
 
-        // 2. Configurer le bouton de téléchargement (pour PC/Android standard)
+        // Configurer le téléchargement
         const downloadBtn = document.getElementById('downloadBtn');
         downloadBtn.href = imgData;
-        // Créer un nom de fichier propre avec la date
-        const date = new Date().toISOString().slice(0,10);
-        downloadBtn.download = `Eleven-Squad-${date}.png`;
+        downloadBtn.download = `Eleven-Squad.png`;
 
-        // 3. Ouvrir la modale
         document.getElementById('exportModal').style.display = 'flex';
-
-    }).catch(err => {
-        console.error("Erreur export:", err);
-        alert("Oups ! Une erreur est survenue lors de la création de l'image.");
-        // Remettre les styles en cas d'erreur
-        teamDisplay.style.backdropFilter = originalBackdrop;
-        btn.textContent = originalText;
     });
 }
-
 function closeExportModal() {
     document.getElementById('exportModal').style.display = 'none';
 }
