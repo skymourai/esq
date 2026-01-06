@@ -343,6 +343,36 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
     .coach-display { left: 15px; }
     .goat-display { right: 15px; }
 }
+/* Styles pour la modale d'export */
+.modal-export-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 2000;
+    display: flex; justify-content: center; align-items: center; padding: 10px;
+}
+.modal-export-content {
+    background: white; width: 100%; max-width: 600px;
+    padding: 20px; border-radius: 15px; text-align: center;
+    position: relative; max-height: 90vh; overflow-y: auto;
+}
+.close-export {
+    position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; color: #333;
+}
+#imgResultContainer img {
+    max-width: 100%; height: auto; border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid #eee;
+}
+.mobile-hint { display: none; color: #666; margin-bottom: 10px; font-size: 14px; }
+.desktop-hint { display: none; color: #666; margin-bottom: 10px; font-size: 14px; }
+
+/* Détection tactile pour afficher le bon message */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-hint { display: block; }
+    #downloadBtn { display: none; } /* Souvent buggé sur in-app, on préfère le long-press */
+}
+@media (hover: hover) {
+    .desktop-hint { display: block; }
+}
+
 </style>
 </head>
 <body>
@@ -543,6 +573,16 @@ h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 
 </select>
         </div>
         <button class="btn" style="width:100%;" onclick="saveCoach()">✅ Valider</button>
+    </div>
+</div>
+<div id="exportModal" class="modal-export-container" style="display:none;">
+    <div class="modal-export-content">
+        <span class="close-export" onclick="closeExportModal()">&times;</span>
+        <h3>📸 Votre équipe est prête !</h3>
+        <p class="mobile-hint">📱 Maintenez l'image appuyée pour l'enregistrer ou la partager.</p>
+        <p class="desktop-hint">💻 Clic droit > Enregistrer l'image sous...</p>
+        <div id="imgResultContainer"></div>
+        <a id="downloadBtn" class="btn btn-success" style="display:inline-block; margin-top:15px; text-decoration:none;">⬇️ Télécharger l'image</a>
     </div>
 </div>
 
@@ -1112,51 +1152,74 @@ function exportAsImage() {
     const element = document.getElementById('export-area');
     const teamDisplay = document.getElementById('team-name-display');
     
-    // CORRECTION : html2canvas n'aime pas "hidden", on s'assure que c'est visible
+    // On s'assure que le nom est visible pour la photo
     if(document.getElementById('teamName').value.trim()) {
         teamDisplay.classList.remove('hidden');
     }
 
-    // CORRECTION : html2canvas bug avec backdrop-filter. On l'enlève temporairement.
+    // Gestion du bug backdrop-filter
     const originalBackdrop = teamDisplay.style.backdropFilter;
     teamDisplay.style.backdropFilter = 'none';
-    teamDisplay.style.background = 'rgba(0,0,0,0.8)'; // Fond plus sombre pour compenser
+    // On met un fond semi-transparent solide pour compenser l'absence de flou
+    teamDisplay.style.background = 'rgba(0,0,0,0.7)'; 
+
+    // Bouton de chargement (optionnel, pour l'UX)
+    const btn = document.querySelector('.btn-success');
+    const originalText = btn.textContent;
+    btn.textContent = '⏳ Génération...';
 
     html2canvas(element, {
-        scale: 2, // Bonne qualité sans être trop lourd
-        backgroundColor: null, // Fond transparent
-        useCORS: true, // Autoriser les drapeaux/images externes
-        logging: false
+        scale: 2, // Haute qualité
+        backgroundColor: null,
+        useCORS: true, 
+        logging: false,
+        allowTaint: true // Aide parfois pour certaines images
     }).then(canvas => {
-        // On remet le style original
+        // Remettre les styles originaux
         teamDisplay.style.backdropFilter = originalBackdrop;
         teamDisplay.style.background = 'rgba(0,0,0,0.45)';
+        btn.textContent = originalText;
 
-        // Ouvrir l'image
+        // Convertir en image
         const imgData = canvas.toDataURL('image/png');
-        const win = window.open('', '_blank');
-        if (!win) {
-             alert("Autorisez les pop-ups pour télécharger l'image !");
-             return;
-        }
 
-        win.document.write(`
-            <html>
-            <head><title>Mon Équipe</title></head>
-            <body style="background:#1a1a1a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0;">
-                <h2 style="color:white; font-family:sans-serif;">📸 Capture ton ecran et partage ;)</h2>
-                <img src="${imgData}" style="max-width:95%; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.5);" />
-            </body>
-            </html>
-        `);
+        // 1. Afficher dans la modale
+        const imgContainer = document.getElementById('imgResultContainer');
+        imgContainer.innerHTML = ''; // Vider l'ancien résultat
+        const img = document.createElement('img');
+        img.src = imgData;
+        img.alt = "Mon Équipe Eleven Builder";
+        imgContainer.appendChild(img);
+
+        // 2. Configurer le bouton de téléchargement (pour PC/Android standard)
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.href = imgData;
+        // Créer un nom de fichier propre avec la date
+        const date = new Date().toISOString().slice(0,10);
+        downloadBtn.download = `Eleven-Squad-${date}.png`;
+
+        // 3. Ouvrir la modale
+        document.getElementById('exportModal').style.display = 'flex';
+
     }).catch(err => {
         console.error("Erreur export:", err);
-        alert("Erreur lors de la création de l'image.");
-        // On remet le style en cas d'erreur
+        alert("Oups ! Une erreur est survenue lors de la création de l'image.");
+        // Remettre les styles en cas d'erreur
         teamDisplay.style.backdropFilter = originalBackdrop;
+        btn.textContent = originalText;
     });
 }
 
+function closeExportModal() {
+    document.getElementById('exportModal').style.display = 'none';
+}
+
+// Fermer la modale si on clique en dehors du contenu
+document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeExportModal();
+    }
+});
 // Lancement au démarrage
 drawField();
 
