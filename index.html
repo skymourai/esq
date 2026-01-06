@@ -976,7 +976,7 @@ function openModal(position, rowIndex, posIndex) {
 
 function openGoatModal() {
     currentPosition = { isGoat: true };
-    document.getElementById('modalTitle').textContent = '🐐 Choisir le meilleur joueur';
+    document.getElementById('modalTitle').textContent = '🐐 Choisir THE GOAT';
     document.getElementById('playerName').value = goat ? goat.name : '';
     document.getElementById('playerFlag').value = goat ? goat.flag : '🌍';
     document.getElementById('playerClub').value = goat ? (goat.club || '') : '';
@@ -1109,38 +1109,53 @@ function clearSquad() {
 // --- EXPORT IMAGE (CORRIGÉ) ---
 
 function exportAsImage() {
-
-    if (isRestrictedWebView()) {
-        alert(
-          "📸 Export désactivé sur ce navigateur.\n\n" +
-          ➡️ Utilisez la capture d’écran pour partager votre équipe.\n" +
-          "➡️ Pour un export image automatique : Safari, Firefox ou Chrome."
-        );
-        return;
+    const element = document.getElementById('export-area');
+    const teamDisplay = document.getElementById('team-name-display');
+    
+    // CORRECTION : html2canvas n'aime pas "hidden", on s'assure que c'est visible
+    if(document.getElementById('teamName').value.trim()) {
+        teamDisplay.classList.remove('hidden');
     }
 
-    const element = document.getElementById("export-area");
+    // CORRECTION : html2canvas bug avec backdrop-filter. On l'enlève temporairement.
+    const originalBackdrop = teamDisplay.style.backdropFilter;
+    teamDisplay.style.backdropFilter = 'none';
+    teamDisplay.style.background = 'rgba(0,0,0,0.8)'; // Fond plus sombre pour compenser
 
     html2canvas(element, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true
+        scale: 2, // Bonne qualité sans être trop lourd
+        backgroundColor: null, // Fond transparent
+        useCORS: true, // Autoriser les drapeaux/images externes
+        logging: false
     }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "eleven-squad.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+        // On remet le style original
+        teamDisplay.style.backdropFilter = originalBackdrop;
+        teamDisplay.style.background = 'rgba(0,0,0,0.45)';
+
+        // Ouvrir l'image
+        const imgData = canvas.toDataURL('image/png');
+        const win = window.open('', '_blank');
+        if (!win) {
+             alert("Autorisez les pop-ups pour télécharger l'image !");
+             return;
+        }
+
+        win.document.write(`
+            <html>
+            <head><title>Mon Équipe</title></head>
+            <body style="background:#1a1a1a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0;">
+                <h2 style="color:white; font-family:sans-serif;">📸 Capture ton ecran et partage ;)</h2>
+                <img src="${imgData}" style="max-width:95%; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.5);" />
+            </body>
+            </html>
+        `);
     }).catch(err => {
-        alert("Erreur lors de l'export 😕");
-        console.error(err);
+        console.error("Erreur export:", err);
+        alert("Erreur lors de la création de l'image.");
+        // On remet le style en cas d'erreur
+        teamDisplay.style.backdropFilter = originalBackdrop;
     });
 }
-
-function isRestrictedWebView() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    return /Snapchat|Twitter|X/i.test(ua);
-}
-
 
 // Lancement au démarrage
 drawField();
